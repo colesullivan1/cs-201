@@ -149,7 +149,6 @@ void test3(){
     RBTree<int,int> X;
 	for (int i=treeSize;i>=0;i--) X.insert(i,treeSize-i);
 	for (int i=1;i<treeSize;i++) {
-		cout << i << endl;
 		if(X.rank(i) != i+1) rankError++; 
 		if(X.select(i) != i-1) selectError++; 
 		int* search = X.search(i); 
@@ -209,8 +208,7 @@ void removeIndex(int removeIndex){
     for (int i=size;i>=0;i--) X.insert(i,size-i);
 	for (int i=0;i<size;i+=removeIndex) X.remove(i);
 	for (int i=1;i<size-size/removeIndex;i++){
-        
-        int part1Answer = i / removeIndex;
+		int part1Answer = i / removeIndex;
 		// Needed for round off error
 		int answer = i+(i+(i+(i+(i+(i + i / removeIndex)/removeIndex)/removeIndex)/removeIndex)/removeIndex)/removeIndex;
 

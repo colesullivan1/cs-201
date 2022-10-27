@@ -13,10 +13,10 @@ int main(){
 
 	
 	RBTree<string, int> T4, T3(T1);
-	T3.preorder();
+	T1.inorder();
 
 	T4 = T1;
-	T4.preorder();
+	T4.inorder();
 
 
 	// T1 and T2 should be identical trees

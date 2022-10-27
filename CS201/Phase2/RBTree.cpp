@@ -121,8 +121,8 @@ class RBTree {
         valuetype* searchRecursive(Node<keytype, valuetype>* x, keytype k);
 
         void insertFixup(Node<keytype, valuetype>* z);
-        void leftRotate(Node<keytype, valuetype>* z);
-        void rightRotate(Node<keytype, valuetype>* z);
+        void leftRotate(Node<keytype, valuetype>* x);
+        void rightRotate(Node<keytype, valuetype>* x);
 
         void removeNode(Node<keytype, valuetype>* z);
         void transplant(Node<keytype, valuetype>* u, Node<keytype, valuetype>* v);
@@ -215,8 +215,13 @@ void RBTree<keytype, valuetype>::insert(keytype k, valuetype v) {
 
     while (x != nil) {
         y = x;
-        if (k < x->key) x = x->left;
-        else    x = x->right;
+        if (k < x->key) {
+            x->size++;
+            x = x->left;
+        } else {
+            x->size++;
+            x = x->right;
+        }
     }
 
     z->parent = y;
@@ -227,6 +232,7 @@ void RBTree<keytype, valuetype>::insert(keytype k, valuetype v) {
 
     z->left = nil;
     z->right = nil;
+    z->size = 1;
     z->color = 1;
 
     insertFixup(z);
@@ -264,10 +270,10 @@ int RBTree<keytype, valuetype>::rank(keytype k) {
 
     if (x == nil)   return 0;
 
-    int r = sizeOf(x->left) + 1;
+    int r = x->left->size + 1;
 
     while (x != head) {
-        if (x == x->parent->right)  r = r + sizeOf(x->parent->left) + 1;
+        if (x == x->parent->right)  r = r + x->parent->left->size + 1;
         x = x->parent;
     }
 
@@ -431,56 +437,62 @@ void RBTree<keytype, valuetype>::insertFixup(Node<keytype, valuetype>* z) {
 }
 
 template <typename keytype, typename valuetype>
-void RBTree<keytype, valuetype>::leftRotate(Node<keytype, valuetype>* z) {
+void RBTree<keytype, valuetype>::leftRotate(Node<keytype, valuetype>* x) {
     Node<keytype, valuetype>* y = new Node<keytype, valuetype>;
 
-    y = z->right;
-    z->right = y->left;
+    y = x->right;
+    x->right = y->left;
 
-    if (y->left != nil) y->left->parent = z;
-    y->parent = z->parent;
+    if (y->left != nil) y->left->parent = x;
+    y->parent = x->parent;
 
-    if (z->parent == nil)           head = y;
-    else if (z == z->parent->left)  z->parent->left = y;
-    else                            z->parent->right = y;
+    if (x->parent == nil)           head = y;
+    else if (x == x->parent->left)  x->parent->left = y;
+    else                            x->parent->right = y;
 
-    y->left = z;
-    z->parent = y;
+    y->left = x;
+    x->parent = y;
 
-    y->size = z->size;
-    z->size = z->left->size + z->right->size + 1;
+    y->size = x->size;
+    x->size = x->left->size + x->right->size + 1;
 }
 
 template <typename keytype, typename valuetype>
-void RBTree<keytype, valuetype>::rightRotate(Node<keytype, valuetype>* z) {
+void RBTree<keytype, valuetype>::rightRotate(Node<keytype, valuetype>* x) {
     Node<keytype, valuetype>* y = new Node<keytype, valuetype>;
 
-    y = z->left;
-    z->left = y->right;
+    y = x->left;
+    x->left = y->right;
 
-    if (y->right != nil) y->right->parent = z;
-    y->parent = z->parent;
+    if (y->right != nil) y->right->parent = x;
+    y->parent = x->parent;
 
-    if (z->parent == nil)           head = y;
-    else if (z == z->parent->right) z->parent->right = y;
-    else                            z->parent->left = y;
+    if (x->parent == nil)           head = y;
+    else if (x == x->parent->right) x->parent->right = y;
+    else                            x->parent->left = y;
 
-    y->right = z;
-    z->parent = y;
+    y->right = x;
+    x->parent = y;
 
-    y->size = z->size;
-    z->size = z->left->size + z->right->size + 1;
+    y->size = x->size;
+    x->size = x->left->size + x->right->size + 1;
 }
 
 template <typename keytype, typename valuetype>
 void RBTree<keytype, valuetype>::removeNode(Node<keytype, valuetype>* z) {
     Node<keytype, valuetype>* x = new Node<keytype, valuetype>;
     Node<keytype, valuetype>* y = new Node<keytype, valuetype>;
-    keytype temp = z->key;
-    y = z;
+    Node<keytype, valuetype>* n = new Node<keytype, valuetype>;
 
+    y = z;
     bool originalColor = y->color;
 
+    n = findPredecessor(z);
+    while (n != nil) {
+        n->size--;
+        n = n->parent;
+    }
+    
     if (z->left == nil) {
         x = z->right;
         transplant(z, z->right);
@@ -510,13 +522,6 @@ void RBTree<keytype, valuetype>::removeNode(Node<keytype, valuetype>* z) {
     if (originalColor == 0) deleteFixup(x);
 
     y = head;
-
-    while (y != nil) {
-        y->size--;
-
-        if (temp < y->key)  y = y->left;
-        else                y = y->right;
-    }
 }
 
 template <typename keytype, typename valuetype>
@@ -561,7 +566,7 @@ void RBTree<keytype, valuetype>::deleteFixup(Node<keytype, valuetype>* x) {
                 x = head;
             }
         } else {
-             w = x->parent->left;
+            w = x->parent->left;
 
             if (w->color == 1) {
                 w->color = 0;
@@ -595,7 +600,7 @@ void RBTree<keytype, valuetype>::deleteFixup(Node<keytype, valuetype>* x) {
 
 template <typename keytype, typename valuetype>
 keytype RBTree<keytype, valuetype>::selectRecursive(Node<keytype, valuetype>* x, int i) {
-    int r = sizeOf(x->left) + 1;
+    int r = x->left->size + 1;
 
     if (i == r)         return x->key;
     else if (i < r)     return selectRecursive(x->left, i);
@@ -605,7 +610,7 @@ keytype RBTree<keytype, valuetype>::selectRecursive(Node<keytype, valuetype>* x,
 template <typename keytype, typename valuetype>
 int RBTree<keytype, valuetype>::sizeOf(Node<keytype, valuetype>* x) {
     if (x == nil)   return 0;
-    else            return sizeOf(x->left) + sizeOf(x->right) + 1;
+    else            return x->left->size + x->right->size + 1;
 }
 
 template <typename keytype, typename valuetype>

@@ -58,9 +58,13 @@ int main(){
         cout << "Error - " << 126 << " failed" <<endl;
     }
 
+    cout << 1 << endl;
     if(myTree->remove(5) == 0){
         cout << "Error - " << 5 << " failed" <<endl;
     }
+
+
+    cout << 2 << endl;
 
     if(myTree->remove(132) == 0){
         cout << "Error - " << 132 << " failed" <<endl;
@@ -89,6 +93,8 @@ int main(){
     if(myTree->remove(8) == 0){
         cout << "Error - " << 8 << " failed" <<endl;
     }
+
+    cout << 3 << endl;
 
     myTree->insert(48,48);
     myTree->insert(24,24);

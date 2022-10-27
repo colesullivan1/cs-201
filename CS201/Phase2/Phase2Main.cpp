@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-#include "RBTree.h"
+#include "RBTree.cpp"
 
 int main(){
 	string K[10] = {"A","B","C","D","E","F","G","H","I","K"};
@@ -8,9 +8,19 @@ int main(){
 	
     RBTree<string, int> T1, T2(K,V,10);
 	
+	
 	for(int i=0; i<10; i++) T1.insert(K[i],V[i]);
+
+	
+	RBTree<string, int> T4, T3(T1);
+	T3.preorder();
+
+	T4 = T1;
+	T4.preorder();
+
+
 	// T1 and T2 should be identical trees
-	/*cout << *(T2.search("C")) << endl;
+	cout << *(T2.search("C")) << endl;
 	// Should output 8
 
 	cout << T1.rank("C") << endl;
@@ -30,6 +40,7 @@ int main(){
 	
 	cout << T2.remove("D") << endl;
 	//Should output 1
+
 	
 	T2.preorder();
 	//Should output F C B A E H G I K\n
@@ -63,6 +74,7 @@ int main(){
 	} 
 	//Should be no output and should take seconds, not minutes
 	
-*/
+
+	
 	return 0;
 }

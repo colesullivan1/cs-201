@@ -53,10 +53,10 @@ Node<keytype, valuetype>::Node(keytype k, valuetype v) {
 template <typename keytype, typename valuetype>
 Node<keytype, valuetype>::Node(bool isNil) {
     left = this;
-    right = this; 
-    parent = this; 
+    right = this;
+    parent = this;
     color = 0;  //  Nil node should always be black
-    size = 0;  
+    size = 0;
 }
 
 //  Destructor for Node
@@ -103,8 +103,8 @@ class RBTree {
         RBTree();
         RBTree(keytype k[], valuetype V[], int s);
         ~RBTree();
-        RBTree(const RBTree &r);
-        RBTree& operator=(const RBTree &r);
+        RBTree(const RBTree &rbt);
+        RBTree& operator=(const RBTree &rbt);
 
         valuetype* search(keytype k);
 
@@ -185,30 +185,30 @@ RBTree<keytype, valuetype>::~RBTree() {
 
 //  Copy constructor for red-black tree
 template <typename keytype, typename valuetype>
-RBTree<keytype, valuetype>::RBTree(const RBTree &r) {
+RBTree<keytype, valuetype>::RBTree(const RBTree &rbt) {
     head = new Node<keytype, valuetype>;
     nil = new Node<keytype, valuetype>;
 
-    head = r.nil;
-    nil = r.nil;
+    head = rbt.nil;
+    nil = rbt.nil;
 
-    numNodes = r.numNodes;
+    numNodes = rbt.numNodes;
 
-    head = copy(r.head);    //  Deep copy r to this
+    head = copy(rbt.head);    //  Deep copy r to this
 }
 
 //  Copy assignment operator for red-black tree
 template <typename keytype, typename valuetype>
-RBTree<keytype, valuetype>& RBTree<keytype, valuetype>::operator=(const RBTree &r) {
+RBTree<keytype, valuetype>& RBTree<keytype, valuetype>::operator=(const RBTree &rbt) {
     head = new Node<keytype, valuetype>;
     nil = new Node<keytype, valuetype>;
 
-    head = r.nil;
-    nil = r.nil;
+    head = rbt.nil;
+    nil = rbt.nil;
 
-    numNodes = r.numNodes;
+    numNodes = rbt.numNodes;
 
-    head = copy(r.head);    //  Deep copy r to this
+    head = copy(rbt.head);    //  Deep copy r to this
 
     return *this;
 }
@@ -326,7 +326,7 @@ keytype* RBTree<keytype, valuetype>::successor(keytype k) {
 
     /*  Iterates down through tree, starting with head, until either:
         1: end of tree is reached
-        2: node with key k is found */ 
+        2: node with key k is found */
     while (x != nil) {
         if (x->key == k)        break;
         else if (k < x->key)    x = x->left;
@@ -350,7 +350,7 @@ keytype* RBTree<keytype, valuetype>::predecessor(keytype k) {
 
     /*  Iterates down through tree, starting with head, until either:
         1: end of tree is reached
-        2: node with key k is found */ 
+        2: node with key k is found */
     while (x != nil) {
         if (x->key == k)        break;
         else if (k < x->key)    x = x->left;
@@ -560,7 +560,7 @@ void RBTree<keytype, valuetype>::removeNode(Node<keytype, valuetype>* z) {
     Node<keytype, valuetype>* x;
     Node<keytype, valuetype>* y = z;
     bool originalColor=y->color;
-    
+
     if(z->left == nil) {
         /*  Case 1: removed node has no left child
             Sets x to z's right child and transplants z's right child to z  */
@@ -608,7 +608,7 @@ void RBTree<keytype, valuetype>::removeNode(Node<keytype, valuetype>* z) {
                                             //  So, call deleteFixup()
 }
 
-//  Transplant helper function for remove 
+//  Transplant helper function for remove
 template <typename keytype, typename valuetype>
 void RBTree<keytype, valuetype>::transplant(Node<keytype, valuetype>* u, Node<keytype, valuetype>* v) {
     /*  Replaces one of u's subtrees with the subtree rooted at v

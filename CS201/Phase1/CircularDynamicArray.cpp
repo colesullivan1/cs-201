@@ -57,6 +57,9 @@ class CircularDynamicArray {
         int WCPivot(int l, int r);
         int WCPartition(int l, int r, int p, int n);
         int WCPartition5(int l, int r);
+
+        void mergeSort(int l, int r);
+        void merge(int l, int m, int r);
 };
 
 //  Default constructor for circular dynamic array
@@ -264,13 +267,13 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int k) {
 
 template <typename elmtype>
 elmtype CircularDynamicArray<elmtype>::WCSelect(int k) {
-    //  FIXME
+    return QuickSelect(0, size - 1, k);
 }
 
 //  Sorts circular dynamic array using merge sort
 template <typename elmtype>
 void CircularDynamicArray<elmtype>::stableSort() {
-    //  FIXME
+    mergeSort(0, size - 1);
 }
 
 //  Linearly searches circular dynamic array
@@ -283,7 +286,7 @@ int CircularDynamicArray<elmtype>::linearSearch(elmtype e) {
 //  Performs binary search on circular dynamic array
 template <typename elmtype>
 int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
-    int left = front;
+    int left = 0;
     int right = size - 1;
     int mid = 0;
 
@@ -321,20 +324,26 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int l, int r, int k) {
 //  Partition helper function for QuickSelect
 template <typename elmtype>
 int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
-    elmtype pivot = data[(front + r) % cap];    //  Sets pivot to be right most element in array
+    //  Sets pivot to random value between l and r, then swaps pivot to end of cda
+    int random = l + rand() % (r - l + 1);
+    elmtype temp = data[(front + random) % cap];
+    data[(front + random) % cap] = data[(front + r) % cap];
+    data[(front + r) % cap] = temp;
+
+    elmtype pivot = data[(front + r) % cap];
     int i = l;
 
     for (int j = l; j <= r - 1; j++) {
-        //  Rearranges array based on pivot
+        //  Rearranges cda based on pivot
         if (data[(front + j) % cap] <= pivot) {
-            elmtype temp = data[(front + i) % cap];
+            temp = data[(front + i) % cap];
             data[(front + i) % cap] = data[(front + j) % cap];
             data[(front + j) % cap] = temp;
             i++;
         }
     }
 
-    elmtype temp = data[(front + i) % cap];
+    temp = data[(front + i) % cap];
     data[(front + i) % cap] = data[(front + r) % cap];
     data[(front + r) % cap] = temp;
     return i;
@@ -358,4 +367,54 @@ int CircularDynamicArray<elmtype>::WCPartition(int l, int r, int p, int k) {
 template <typename elmtype>
 int CircularDynamicArray<elmtype>::WCPartition5(int l, int r) {
     //  FIXME
+}
+
+template <typename elmtype>
+void CircularDynamicArray<elmtype>::mergeSort(int l, int r) {
+    if (l >= r) return;
+
+    int mid = l + (r - l) / 2;
+    mergeSort(l, mid);
+    mergeSort(mid + 1, r);
+    merge(l, mid, r);
+}
+
+template <typename elmtype>
+void CircularDynamicArray<elmtype>::merge(int l, int m, int r) {
+    int sizeOne = m - l + 1;
+    int sizeTwo = r - m;
+
+    elmtype* leftArray = new elmtype[sizeOne];
+    elmtype* rightArray = new elmtype[sizeTwo];
+
+    for (int i = 0; i < sizeOne; i++)   leftArray[i] = data[(front + l + i) % cap];
+    for (int i = 0; i < sizeTwo; i++)   rightArray[i] = data[(front + m + 1 + i) % cap];
+
+    int indexOne = 0;
+    int indexTwo = 0;
+    int indexMerge = l;
+
+    while (indexOne < sizeOne && indexTwo < sizeTwo) {
+        if (leftArray[indexOne] <= rightArray[indexTwo]) {
+            data[(front + indexMerge) % cap] = leftArray[indexOne];
+            indexOne++;
+        } else {
+            data[(front + indexMerge) % cap] = rightArray[indexTwo];
+            indexTwo++;
+        }
+
+        indexMerge++;
+    }
+
+    while (indexOne < sizeOne) {
+        data[(front + indexMerge) % cap] = leftArray[indexOne];
+        indexOne++;
+        indexMerge++;
+    }
+
+    while (indexTwo < sizeTwo) {
+        data[(front + indexMerge) % cap] = rightArray[indexTwo];
+        indexTwo++;
+        indexMerge++;
+    }
 }

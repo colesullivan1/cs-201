@@ -5,8 +5,8 @@
                 in lecture and in the Introduction to Algorithms textbook   */
 
 /*  NEED TO FIX:
-     - stableSort()
      - WCSelect()
+     - COMMENTS: mergeSort() and merge()
      - MAYBE: addEnd(), addFront(), delEnd(), delFront()    */
 
 #include <iostream>
@@ -265,6 +265,7 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int k) {
     return QuickSelect(0, size - 1, k); //  Calls recursive helper function
 }
 
+//  Returns kth smallest element using _______
 template <typename elmtype>
 elmtype CircularDynamicArray<elmtype>::WCSelect(int k) {
     return QuickSelect(0, size - 1, k);
@@ -295,7 +296,7 @@ int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
 
         /*  If value at middle is equal to e, return middle
             Else if value at middle is less than e, left gets middle + 1
-            Else, right gets middle - 1 */
+            Else, right gets middle - 1                                 */
         if (data[(front + mid) % cap] == e)     return mid;
         else if (data[(front + mid) % cap] < e) left = mid + 1;
         else                                    right = mid - 1;
@@ -312,7 +313,7 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int l, int r, int k) {
 
         /*  If partition index is equal to k, return value at index
             Else, if partition index is greater than k, recursively searches left half of array
-            Else, recursively searches right half of array  */
+            Else, recursively searches right half of array                                      */
         if (index - l == k - 1)     return data[(front + index) % cap];
         else if (index - l > k - 1) return QuickSelect(l, index - 1, k);
         else                        return QuickSelect(index + 1, r, k - index + l - 1);
@@ -324,7 +325,7 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int l, int r, int k) {
 //  Partition helper function for QuickSelect
 template <typename elmtype>
 int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
-    //  Sets pivot to random value between l and r, then swaps pivot to end of cda
+    //  Sets pivot to random value between l and r, then swaps pivot to end of subarray
     int random = l + rand() % (r - l + 1);
     elmtype temp = data[(front + random) % cap];
     data[(front + random) % cap] = data[(front + r) % cap];
@@ -334,7 +335,8 @@ int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
     int i = l;
 
     for (int j = l; j <= r - 1; j++) {
-        //  Rearranges cda based on pivot
+        /*  If element at position j is less than or equal to pivot,
+            swap elements at i and j and increase i by 1            */
         if (data[(front + j) % cap] <= pivot) {
             temp = data[(front + i) % cap];
             data[(front + i) % cap] = data[(front + j) % cap];
@@ -343,6 +345,7 @@ int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
         }
     }
 
+    //  Swaps elements at i and end of subarray
     temp = data[(front + i) % cap];
     data[(front + i) % cap] = data[(front + r) % cap];
     data[(front + r) % cap] = temp;
@@ -369,16 +372,18 @@ int CircularDynamicArray<elmtype>::WCPartition5(int l, int r) {
     //  FIXME
 }
 
+//  Recursive helper function for stableSort
 template <typename elmtype>
 void CircularDynamicArray<elmtype>::mergeSort(int l, int r) {
     if (l >= r) return;
 
     int mid = l + (r - l) / 2;
-    mergeSort(l, mid);
-    mergeSort(mid + 1, r);
+    mergeSort(l, mid);      //  left subarray
+    mergeSort(mid + 1, r);  //  right subarray
     merge(l, mid, r);
 }
 
+//  Merges left and right subarrays created in mergeSort
 template <typename elmtype>
 void CircularDynamicArray<elmtype>::merge(int l, int m, int r) {
     int sizeOne = m - l + 1;

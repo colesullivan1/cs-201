@@ -25,11 +25,9 @@ int main(){
 	// C => "1 2 3 4 5 6 7 8 100"
 	C.delFront();
 	C.addEnd(200.0);
-	// C => "2 3 4 5 6 7 8 100 200"	
 
 	C.addEnd(300.0);
 	C.addEnd(400.0);
-	// C => "2 3 4 5 6 7 8 100 200 300 400"	
 
 	CircularDynamicArray<int> A,B;
 	for(int i=0; i<10;i++) A.addEnd(i);
@@ -51,6 +49,7 @@ int main(){
 	cout << "Select is " << A.WCSelect(12) << endl;
 	// Select => 15
 	A.stableSort();
+	for (int i=0; i< A.length();i++) cout << A[i] << " ";  cout << endl;
 	// A => "0 1 2 3 4 5 6 7 8 9 10 15 19"
 	A.addEnd(11); A.addFront(1); A.addFront(2); A.addFront(3);
 	cout << "capacity is " << A.capacity() << endl;
@@ -62,5 +61,5 @@ int main(){
 	for (int i=0; i< A.length();i++) cout << A[i] << " ";  cout << endl;
 	// A => "1 0 1 2 3 4 5 6 7 8 9 10 15 19 11"
 	for (int i=0; i< B.length();i++) cout << B[i] << " ";  cout << endl;
-	// B => "0 1 2 3 4 5 6 7 8 9"
+	// B => "0 1 2 3 4 5 6 7 8 9" 
 }

@@ -124,6 +124,7 @@ class RBTree {
         void postorder();
 
         void printk(int k);
+        
     private:
         Node<keytype, valuetype>* head;
         Node<keytype, valuetype>* nil;

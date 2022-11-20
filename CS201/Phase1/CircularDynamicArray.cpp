@@ -4,6 +4,11 @@
     Assignment: Build a circular dynamic array based on the methods described
                 in lecture and in the Introduction to Algorithms textbook   */
 
+/*  NEED TO FIX:
+     - stableSort()
+     - WCSelect()
+     - MAYBE: addEnd(), addFront(), delEnd(), delFront()    */
+
 #include <iostream>
 #include <math.h>
 using namespace std;
@@ -45,7 +50,8 @@ class CircularDynamicArray {
         int front;
         elmtype error;
 
-        int QuickPartition(int l, int r, int p);
+        elmtype QuickSelect(int l, int r, int k);
+        int QuickPartition(int l, int r);
 
         int WCSelect(int l, int r, int k);
         int WCPivot(int l, int r);
@@ -151,6 +157,20 @@ void CircularDynamicArray<elmtype>::addFront(elmtype v) {
         /*  If size is greater than or equal to capacity,
             increase size by 1 and multiply capacity by 2   */
 
+        //  Create temp array holding old values + new value
+        elmtype* temp = new elmtype[cap * 2];
+        temp[0] = v;
+        for (int i = 0; i < size; i++)  temp[i + 1] = data[(front + i) % cap];
+
+        //  Set front to 0, increase capacity by a factor of 2, increase size by 1
+        //  and copy temp to data
+        front = 0;
+        cap *= 2;
+        data = new elmtype[cap];
+        data = temp;
+        size++;
+
+        /*
         //  Create temp array holding old data values
         elmtype* temp = new elmtype[cap * 2];
         for (int i = 0; i < size; i++)  temp[i] = data[(front + i) % cap];
@@ -159,16 +179,16 @@ void CircularDynamicArray<elmtype>::addFront(elmtype v) {
         cap *= 2;
         data = new elmtype[cap];
         data = temp;
-        
+
         //  Move front, add v to front of array and increase size by 1
-        front = (front + (cap - 1)) % cap;
+        front = (front + cap - 1) % cap;
         data[front] = v;
-        size++;
+        size++; */
     } else {
         /*  If size is less than capacity,
             just move front, add v to front of array and increase size by 1  */
 
-        front = (front + (cap - 1)) % cap;
+        front = (front + cap - 1) % cap;
         data[front] = v;
         size++;
     }
@@ -202,7 +222,7 @@ void CircularDynamicArray<elmtype>::delFront() {
 
     if (((double)size / (double)cap) <= 0.25) {
         //  If size is less than or equal to 1/4 of capacity, halve capacity
-        
+
         //  Create temp array holding old data values
         elmtype* temp = new elmtype[cap / 2];
         for (int i = 0; i < size; i++)  temp[i] = data[(front + i) % cap];
@@ -236,9 +256,10 @@ void CircularDynamicArray<elmtype>::clear() {
     front = 0;
 }
 
+//  Returns kth smallest element using quick select
 template <typename elmtype>
 elmtype CircularDynamicArray<elmtype>::QuickSelect(int k) {
-    //  FIXME
+    return QuickSelect(0, size - 1, k); //  Calls recursive helper function
 }
 
 template <typename elmtype>
@@ -246,54 +267,20 @@ elmtype CircularDynamicArray<elmtype>::WCSelect(int k) {
     //  FIXME
 }
 
+//  Sorts circular dynamic array using merge sort
 template <typename elmtype>
 void CircularDynamicArray<elmtype>::stableSort() {
-    if ((size) > 1) {
-        CircularDynamicArray<elmtype> leftHalf;
-        CircularDynamicArray<elmtype> rightHalf;
-
-        int i = 0;
-        for (; i < size / 2; i++)   leftHalf.addEnd(data[(front + i) % cap]);
-        for (; i < size; i++)       rightHalf.addEnd(data[(front + i) % cap]);
-
-        leftHalf.stableSort();
-        rightHalf.stableSort();
-        
-        int mainIndex = 0;
-        int leftIndex = 0;
-        int rightIndex = 0;
-
-        while (leftIndex < leftHalf.length() && rightIndex < rightHalf.length()) {
-            if (leftHalf.data[(leftHalf.front + leftIndex) % leftHalf.cap] < rightHalf.data[(rightHalf.front + rightIndex) % rightHalf.cap]) {
-                data[(front + mainIndex) % cap] = leftHalf.data[leftIndex];
-                leftIndex++;
-            } else {
-                data[(front + mainIndex) % cap] = rightHalf.data[rightIndex];
-                rightIndex++;
-            }
-            mainIndex++;
-        }
-
-        while (leftIndex < leftHalf.length()) {
-            data[(front + mainIndex) % cap] = leftHalf.data[leftIndex];
-            leftIndex++;
-            mainIndex++;
-        }
-
-        while (rightIndex < rightHalf.length()) {
-            data[(front + mainIndex) % cap] = rightHalf.data[rightIndex];
-            rightIndex++;
-            mainIndex++;
-        }
-    }
+    //  FIXME
 }
 
+//  Linearly searches circular dynamic array
 template <typename elmtype>
 int CircularDynamicArray<elmtype>::linearSearch(elmtype e) {
     for (int i = 0; i < size; i++)  if (data[(front + i) % cap] == e)   return i;
     return -1;
 }
 
+//  Performs binary search on circular dynamic array
 template <typename elmtype>
 int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
     int left = front;
@@ -303,6 +290,9 @@ int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
     while (left <= right) {
         mid = (left + right) / 2;
 
+        /*  If value at middle is equal to e, return middle
+            Else if value at middle is less than e, left gets middle + 1
+            Else, right gets middle - 1 */
         if (data[(front + mid) % cap] == e)     return mid;
         else if (data[(front + mid) % cap] < e) left = mid + 1;
         else                                    right = mid - 1;
@@ -311,9 +301,43 @@ int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
     return -1;
 }
 
+//  Recursive helper function for QuickSelect
 template <typename elmtype>
-int CircularDynamicArray<elmtype>::QuickPartition(int l, int r, int p) {
-    //  FIXME
+elmtype CircularDynamicArray<elmtype>::QuickSelect(int l, int r, int k) {
+    if (k > 0 && k <= r - l + 1) {
+        int index = QuickPartition(l, r);
+
+        /*  If partition index is equal to k, return value at index
+            Else, if partition index is greater than k, recursively searches left half of array
+            Else, recursively searches right half of array  */
+        if (index - l == k - 1)     return data[(front + index) % cap];
+        else if (index - l > k - 1) return QuickSelect(l, index - 1, k);
+        else                        return QuickSelect(index + 1, r, k - index + l - 1);
+    }
+
+    return error;   //  If k is not a valid value, return error
+}
+
+//  Partition helper function for QuickSelect
+template <typename elmtype>
+int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
+    elmtype pivot = data[(front + r) % cap];    //  Sets pivot to be right most element in array
+    int i = l;
+
+    for (int j = l; j <= r - 1; j++) {
+        //  Rearranges array based on pivot
+        if (data[(front + j) % cap] <= pivot) {
+            elmtype temp = data[(front + i) % cap];
+            data[(front + i) % cap] = data[(front + j) % cap];
+            data[(front + j) % cap] = temp;
+            i++;
+        }
+    }
+
+    elmtype temp = data[(front + i) % cap];
+    data[(front + i) % cap] = data[(front + r) % cap];
+    data[(front + r) % cap] = temp;
+    return i;
 }
 
 template <typename elmtype>

@@ -43,6 +43,8 @@ class CircularDynamicArray {
         int linearSearch(elmtype e);
         int binSearch(elmtype e);
 
+        void swap(int x, int y);
+
     private:
         int cap;
         int size;
@@ -302,6 +304,13 @@ int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
     }
 
     return -1;
+}
+
+template <typename elmtype>
+void CircularDynamicArray<elmtype>::swap(int x, int y) {
+    elmtype temp = data[(front + x) % cap];
+    data[(front + x) % cap] = data[(front + y) % cap];
+    data[(front + y) % cap] = temp;
 }
 
 //  Recursive helper function for QuickSelect

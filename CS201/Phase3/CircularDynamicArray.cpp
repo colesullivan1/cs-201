@@ -70,7 +70,6 @@ CircularDynamicArray<elmtype>::CircularDynamicArray() {
     size = 0;
     data = new elmtype[cap];
     front = 0;
-    error = -1;
 }
 
 //  Overloaded constructor for circular dynamic array, constructs array with capacity and size s
@@ -80,7 +79,6 @@ CircularDynamicArray<elmtype>::CircularDynamicArray(int s) {
     size = s;
     data = new elmtype[s];
     front = 0;
-    error = -1;
 }
 
 //  Destructor for circular dynamic array
@@ -96,7 +94,6 @@ CircularDynamicArray<elmtype>::CircularDynamicArray(const CircularDynamicArray &
     size = cda.size;
     data = new elmtype[cap];
     front = 0;
-    error = -1;
 
     for (int i = 0; i < cda.size; i++)  addEnd(cda.data[i]);    //  Essentially deep copies cda.data to data
 }
@@ -108,7 +105,6 @@ CircularDynamicArray<elmtype>& CircularDynamicArray<elmtype>::operator=(const Ci
     size = 0;
     data = new elmtype[cap];
     front = 0;
-    error = -1;
 
     for (int i = 0; i < cda.size; i++)  addEnd(cda.data[i]);    //  Essentially deep copies cda.data to data
 

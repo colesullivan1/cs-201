@@ -4,8 +4,12 @@
     Assignment: Build a standard binary heap based on the methods described in
                 the recorded lectures and in the Introduction to Algorithms textbook    */
 
-#include <iostream>
+#ifndef Included_CircularDynamicArray
+#define Included_CircularDynamicArray
 #include "CircularDynamicArray.cpp"
+#endif
+
+#include <iostream>
 using namespace std;
 
 template <typename keytype>
@@ -14,6 +18,8 @@ class Heap {
         Heap();
         Heap(keytype k[], int s);
         ~Heap();
+        Heap(const Heap &H);
+        Heap& operator=(const Heap &H);
         keytype peekKey();
         keytype extractMin();
         void insert(keytype k);
@@ -47,6 +53,22 @@ Heap<keytype>::Heap(keytype k[], int s) {
 
 template <typename keytype>
 Heap<keytype>::~Heap() {
+    size = 0;
+
+}
+
+template <typename keytype>
+Heap<keytype>::Heap(const Heap &H) {
+    data = H.data;
+    size = H.size;
+}
+
+template <typename keytype>
+Heap<keytype>& Heap<keytype>::operator=(const Heap &H) {
+    this->data = H.data;
+    this->size = H.size;
+
+    return *this;
 }
 
 template <typename keytype>
@@ -68,7 +90,7 @@ template <typename keytype>
 void Heap<keytype>::insert(keytype k) {
     size++;
     data.addEnd(k);
-    
+
     int i = size - 1;
     while (i > 0 && data[i] < data[parent(i)]) {
         data.swap(i, parent(i));
@@ -80,7 +102,7 @@ void Heap<keytype>::insert(keytype k) {
 template <typename keytype>
 void Heap<keytype>::printKey() {
     for (int i = 0; i < size; i++)  cout << data[i] << " ";
-    cout << endl;
+    if (size != 0)  cout << endl;
 }
 
 //  Returns index of parent of i

@@ -11,6 +11,7 @@
 
 #include <ostream>
 using namespace std;
+#include "CircularDynamicArray.cpp"
 #include "Heap.cpp"
 #include "FibHeap.cpp"
 

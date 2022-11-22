@@ -78,7 +78,7 @@ void test1(ostream &fp){
 	fp << "Search is " << A.linearSearch(60) << endl;
 	fp << "Select is " << A.QuickSelect(2) << endl;
 	A.stableSort();
-	A.addFront(12); 
+	A.addFront(12);
 	fp << "Search is " << A.binSearch(60) << endl;
 	fp << "Select is " << A.WCSelect(2) << endl;
 	A.addFront(-12);
@@ -104,6 +104,7 @@ void test2(ostream &fp){
 	if(printWrapper) fp << "Running test 2" << endl;   //testing O(nlgn) sort
 	CircularDynamicArray<int> A;
 	for(int i = 0; i < 500500; i++) A.addFront(i);
+	fp << "DONE INSERTING" << endl;
 	fp << "Select is " << A.WCSelect(400) << endl;
 	fp << "Select is " << A.WCSelect(4000) << endl;
 	fp << "Select is " << A.WCSelect(40000) << endl;
@@ -122,11 +123,11 @@ void test3(ostream &fp){
 		CircularDynamicArray<double> D(500500);
 		for(int j=0; j<500500; j++) D[j] = -10.0;
 		for(int j=1; j<1000; j++) D[i*j] = i*j;
-		for(int j=50*i; j<51*i; j++) 
+		for(int j=50*i; j<51*i; j++)
 			if(D[j] != -10.0 && i % 39 == 0){
 				cout << "D["<<j<<"] is : "<<D[j] << endl;  //should output where D[j] is : j once per value of i
 				initCounter++;
-			} 
+			}
 	}
 	int printNumber = 0;
 	if(initCounter < 6) printNumber = 5;
@@ -149,27 +150,27 @@ void test4(ostream &fp){
 	CircularDynamicArray<int> A;
 	for(int i = 0; i < 50000; i++) {A.addFront(i);A.addEnd(100000-i);}
 	fp << "A[24999] is " << A[24999] << endl;
-	fp << "A[25000] is " << A[25000] << endl;	
-	for(int i = 0; i < 25000; i++) {A.delFront();A.delEnd();}	
+	fp << "A[25000] is " << A[25000] << endl;
+	for(int i = 0; i < 25000; i++) {A.delFront();A.delEnd();}
 	fp << "A[12499] is " << A[12499] << endl;
 	fp << "A[12500] is " << A[12500] << endl;
 	fp << "Search is " << A.linearSearch(400) << endl;
 	fp << "Select is " << A.WCSelect(4000) << endl;
 	A.stableSort();
 	fp << "BinSearch is " << A.binSearch(4000) << endl;
-	fp << "BinSearch is " << A.binSearch(50000) << endl;	  //looking for a value not in the array	
+	fp << "BinSearch is " << A.binSearch(50000) << endl;	  //looking for a value not in the array
 	if(printWrapper) fp << "-----------------Finished Test----------------------" << endl;
 }
 
 
 void test5(ostream &fp){
-	if(printWrapper) fp << "Running test 5" << endl;	
+	if(printWrapper) fp << "Running test 5" << endl;
 	CircularDynamicArray<int> A;
-	for(int i = 0; i < 1000000; i++) 
+	for(int i = 0; i < 1000000; i++)
 	{
 		A.addEnd(i);
 	}
-	for(int i = 0; i < 23000; i++) 
+	for(int i = 0; i < 23000; i++)
 	{
 		int value = A.binSearch(i);
 		if(i % 3500 == 0) fp << "binSearch at " << i << " is " << value << endl;
@@ -181,27 +182,27 @@ void test5(ostream &fp){
 void test6(ostream &fp){
 	if(printWrapper) fp << "Running test 6" << endl;
 	CircularDynamicArray<int> A;
-	for(int i = 0; i < 500000; i++) 
+	for(int i = 0; i < 500000; i++)
 	{
 		A.addFront(i);
 	}
 	A.stableSort();
-	for(int i = 0; i < 40; i++) 
+	for(int i = 0; i < 40; i++)
 	{
 		int value = A.binSearch(i);
 		if(i % 10 == 0) fp << "Search at " << i << " is " << value << endl;
 	}
-	for(int i = 40; i < 50; i++) 
+	for(int i = 40; i < 50; i++)
 	{
 		int value = A.linearSearch(i);
 		if(i % 10 == 0) fp << "Search at " << i << " is " << value << endl;
 	}
-	for(int i = 1; i < 5; i++) 
+	for(int i = 1; i < 5; i++)
 	{
 		int value = A.WCSelect(i);
 		fp << "Select at " << i << " is " << value << endl;
 	}
-	for(int i = 49900; i < 49905; i++) 
+	for(int i = 49900; i < 49905; i++)
 	{
 		int value = A.QuickSelect(i);
 		fp << "Select at " << i << " is " << value << endl;

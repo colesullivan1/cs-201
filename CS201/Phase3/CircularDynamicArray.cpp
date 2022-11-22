@@ -57,7 +57,7 @@ class CircularDynamicArray {
 
         elmtype WCSelect(elmtype* arr, int l, int r, int k);
         int WCPartition(elmtype* arr, int l, int r, elmtype x);
-        elmtype WCFindMedian(elmtype* arr, int n);
+        elmtype WCFindMedian(elmtype* arr, int i, int n);
 
         void mergeSort(int l, int r);
         void merge(int l, int m, int r);
@@ -126,7 +126,7 @@ template <typename elmtype>
 void CircularDynamicArray<elmtype>::addEnd(elmtype v) {
     if (size >= cap) {
         /*  If size is greater than or equal to capacity,
-            increase size by 1 and multiply capacity by 2   */
+            increase size by 1 and double capacity      */
 
         //  Create temp array holding old data values
         elmtype* temp = new elmtype[cap * 2];
@@ -162,28 +162,13 @@ void CircularDynamicArray<elmtype>::addFront(elmtype v) {
         temp[0] = v;
         for (int i = 0; i < size; i++)  temp[i + 1] = data[(front + i) % cap];
 
-        //  Set front to 0, increase capacity by a factor of 2, increase size by 1
+        //  Set front to 0, double capacity, increase size by 1
         //  and copy temp to data
         front = 0;
         cap *= 2;
         data = new elmtype[cap];
         data = temp;
         size++;
-
-        /*
-        //  Create temp array holding old data values
-        elmtype* temp = new elmtype[cap * 2];
-        for (int i = 0; i < size; i++)  temp[i] = data[(front + i) % cap];
-
-        //  Increase capacity and copy temp to data
-        cap *= 2;
-        data = new elmtype[cap];
-        data = temp;
-
-        //  Move front, add v to front of array and increase size by 1
-        front = (front + cap - 1) % cap;
-        data[front] = v;
-        size++; */
     } else {
         /*  If size is less than capacity,
             just move front, add v to front of array and increase size by 1  */
@@ -262,7 +247,7 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int k) {
     return QuickSelect(0, size - 1, k); //  Calls recursive helper function
 }
 
-//  Returns kth smallest element using _______
+//  Returns kth smallest element using _______ (quick select apparently)
 template <typename elmtype>
 elmtype CircularDynamicArray<elmtype>::WCSelect(int k) {
     return QuickSelect(0, size - 1, k);
@@ -354,21 +339,6 @@ int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
     data[(front + i) % cap] = data[(front + r) % cap];
     data[(front + r) % cap] = temp;
     return i;
-}
-
-template <typename elmtype>
-elmtype CircularDynamicArray<elmtype>::WCSelect(elmtype* arr, int l, int r, int k) {
-    //  FIXME
-}
-
-template <typename elmtype>
-int CircularDynamicArray<elmtype>::WCPartition(elmtype* arr, int l, int r, elmtype x) {
-    //  FIXME
-}
-
-template <typename elmtype>
-elmtype CircularDynamicArray<elmtype>::WCFindMedian(elmtype* arr, int n) {
-    //  FIXME
 }
 
 //  Recursive helper function for stableSort

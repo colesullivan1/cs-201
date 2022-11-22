@@ -4,11 +4,6 @@
     Assignment: Build a circular dynamic array based on the methods described
                 in lecture and in the Introduction to Algorithms textbook   */
 
-/*  NEED TO FIX:
-     - WCSelect()
-     - COMMENTS: mergeSort() and merge()
-     - MAYBE: addEnd(), addFront(), delEnd(), delFront()    */
-
 #include <iostream>
 #include <math.h>
 using namespace std;
@@ -43,6 +38,8 @@ class CircularDynamicArray {
         int linearSearch(elmtype e);
         int binSearch(elmtype e);
 
+        void swap(int x, int y);
+
     private:
         int cap;
         int size;
@@ -55,7 +52,7 @@ class CircularDynamicArray {
 
         elmtype WCSelect(elmtype* arr, int l, int r, int k);
         int WCPartition(elmtype* arr, int l, int r, elmtype x);
-        elmtype WCFindMedian(elmtype* arr, int n);
+        elmtype WCFindMedian(elmtype* arr, int i, int n);
 
         void mergeSort(int l, int r);
         void merge(int l, int m, int r);
@@ -68,7 +65,6 @@ CircularDynamicArray<elmtype>::CircularDynamicArray() {
     size = 0;
     data = new elmtype[cap];
     front = 0;
-    error = -1;
 }
 
 //  Overloaded constructor for circular dynamic array, constructs array with capacity and size s
@@ -78,7 +74,6 @@ CircularDynamicArray<elmtype>::CircularDynamicArray(int s) {
     size = s;
     data = new elmtype[s];
     front = 0;
-    error = -1;
 }
 
 //  Destructor for circular dynamic array
@@ -94,7 +89,6 @@ CircularDynamicArray<elmtype>::CircularDynamicArray(const CircularDynamicArray &
     size = cda.size;
     data = new elmtype[cap];
     front = 0;
-    error = -1;
 
     for (int i = 0; i < cda.size; i++)  addEnd(cda.data[i]);    //  Essentially deep copies cda.data to data
 }
@@ -106,7 +100,6 @@ CircularDynamicArray<elmtype>& CircularDynamicArray<elmtype>::operator=(const Ci
     size = 0;
     data = new elmtype[cap];
     front = 0;
-    error = -1;
 
     for (int i = 0; i < cda.size; i++)  addEnd(cda.data[i]);    //  Essentially deep copies cda.data to data
 
@@ -128,7 +121,7 @@ template <typename elmtype>
 void CircularDynamicArray<elmtype>::addEnd(elmtype v) {
     if (size >= cap) {
         /*  If size is greater than or equal to capacity,
-            increase size by 1 and multiply capacity by 2   */
+            increase size by 1 and double capacity      */
 
         //  Create temp array holding old data values
         elmtype* temp = new elmtype[cap * 2];
@@ -164,28 +157,13 @@ void CircularDynamicArray<elmtype>::addFront(elmtype v) {
         temp[0] = v;
         for (int i = 0; i < size; i++)  temp[i + 1] = data[(front + i) % cap];
 
-        //  Set front to 0, increase capacity by a factor of 2, increase size by 1
+        //  Set front to 0, double capacity, increase size by 1
         //  and copy temp to data
         front = 0;
         cap *= 2;
         data = new elmtype[cap];
         data = temp;
         size++;
-
-        /*
-        //  Create temp array holding old data values
-        elmtype* temp = new elmtype[cap * 2];
-        for (int i = 0; i < size; i++)  temp[i] = data[(front + i) % cap];
-
-        //  Increase capacity and copy temp to data
-        cap *= 2;
-        data = new elmtype[cap];
-        data = temp;
-
-        //  Move front, add v to front of array and increase size by 1
-        front = (front + cap - 1) % cap;
-        data[front] = v;
-        size++; */
     } else {
         /*  If size is less than capacity,
             just move front, add v to front of array and increase size by 1  */
@@ -264,7 +242,7 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int k) {
     return QuickSelect(0, size - 1, k); //  Calls recursive helper function
 }
 
-//  Returns kth smallest element using _______
+//  Returns kth smallest element using _______ (quick select apparently)
 template <typename elmtype>
 elmtype CircularDynamicArray<elmtype>::WCSelect(int k) {
     return QuickSelect(0, size - 1, k);
@@ -302,6 +280,13 @@ int CircularDynamicArray<elmtype>::binSearch(elmtype e) {
     }
 
     return -1;
+}
+
+template <typename elmtype>
+void CircularDynamicArray<elmtype>::swap(int x, int y) {
+    elmtype temp = data[(front + x) % cap];
+    data[(front + x) % cap] = data[(front + y) % cap];
+    data[(front + y) % cap] = temp;
 }
 
 //  Recursive helper function for QuickSelect
@@ -349,21 +334,6 @@ int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
     data[(front + i) % cap] = data[(front + r) % cap];
     data[(front + r) % cap] = temp;
     return i;
-}
-
-template <typename elmtype>
-elmtype CircularDynamicArray<elmtype>::WCSelect(elmtype* arr, int l, int r, int k) {
-    //  FIXME
-}
-
-template <typename elmtype>
-int CircularDynamicArray<elmtype>::WCPartition(elmtype* arr, int l, int r, elmtype x) {
-    //  FIXME
-}
-
-template <typename elmtype>
-elmtype CircularDynamicArray<elmtype>::WCFindMedian(elmtype* arr, int n) {
-    //  FIXME
 }
 
 //  Recursive helper function for stableSort

@@ -4,14 +4,10 @@
     Assignment: Build a standard binary heap based on the methods described in
                 the recorded lectures and in the Introduction to Algorithms textbook    */
 
-#ifndef Included_CircularDynamicArray
-#define Included_CircularDynamicArray
-#include "CircularDynamicArray.cpp"
-#endif
-
 #include <iostream>
 using namespace std;
 
+//  Heap Class
 template <typename keytype>
 class Heap {
     public:
@@ -36,33 +32,37 @@ class Heap {
         void heapify(int i);
 };
 
+//  Default constructor
 template <typename keytype>
 Heap<keytype>::Heap() {
     data = CircularDynamicArray<keytype>();
     size = 0;
 }
 
+//  Constructs new heap of size s using keys stored in k[]
 template <typename keytype>
 Heap<keytype>::Heap(keytype k[], int s) {
     data = CircularDynamicArray<keytype>();
     size = s;
 
-    for (int i = 0; i < size; i++)  data.addEnd(k[i]);
-    for (int i = (size / 2) - 1; i >= 0; i--)   heapify(i);
+    for (int i = 0; i < size; i++)  data.addEnd(k[i]);  //  Adds k[i] to bottom of heap
+    for (int i = (size / 2) - 1; i >= 0; i--)   heapify(i); //  Calls heapify s/2 - 1 times
 }
 
+//  Destructor
 template <typename keytype>
 Heap<keytype>::~Heap() {
     size = 0;
-
 }
 
+//  Copy constructor, copies heap H to this
 template <typename keytype>
 Heap<keytype>::Heap(const Heap &H) {
     data = H.data;
     size = H.size;
 }
 
+//  Copy assignment operator, copies heap H to this
 template <typename keytype>
 Heap<keytype>& Heap<keytype>::operator=(const Heap &H) {
     this->data = H.data;
@@ -71,17 +71,22 @@ Heap<keytype>& Heap<keytype>::operator=(const Heap &H) {
     return *this;
 }
 
+//  Returns smallest key in heap
 template <typename keytype>
 keytype Heap<keytype>::peekKey() {
     return data[0];
 }
 
+//  Removes smallest key from heap and returns it
 template <typename keytype>
 keytype Heap<keytype>::extractMin() {
+    /*  Sets min to key at top of heap, then removes min from heap and
+        moves key from the bottom of the heap to the top            */
     keytype min = data[0];
     data[0] = data[size - 1];
     size--;
-    heapify(0);
+
+    heapify(0); //  Calls heapify on the key at the top of the heap
     return min;
 }
 
@@ -89,8 +94,10 @@ keytype Heap<keytype>::extractMin() {
 template <typename keytype>
 void Heap<keytype>::insert(keytype k) {
     size++;
-    data.addEnd(k);
+    data.addEnd(k); //  Add k to bottom of heap
 
+    /*  If new key is smaller than its parent, swap new key
+    and its parent and set i to new key's new location  */
     int i = size - 1;
     while (i > 0 && data[i] < data[parent(i)]) {
         data.swap(i, parent(i));
@@ -123,17 +130,20 @@ int Heap<keytype>::right(int i) {
     return ((i + 1) * 2 + 1) - 1;
 }
 
+// "Floats" key at i down the heap so that the sub-tree rooted at i obeys the min-heap properties
 template <typename keytype>
 void Heap<keytype>::heapify(int i) {
     int l = left(i);
     int r = right(i);
-    int lowest = i;
+    int min = i;
 
-    if (l < size && data[l] < data[i])      lowest = l;
-    if (r < size && data[r] < data[lowest]) lowest = r;
+    //  Finds smallest key in i's subtree
+    if (l < size && data[l] < data[i])      min = l;
+    if (r < size && data[r] < data[min])    min = r;
 
-    if (lowest != i) {
-        data.swap(i, lowest);
-        heapify(lowest);
+    //  If i was not the smallest key, swap i and min and call heapify on min
+    if (min != i) {
+        data.swap(i, min);
+        heapify(min);
     }
 }

@@ -4,8 +4,12 @@
     Assignment: Build a circular dynamic array based on the methods described
                 in lecture and in the Introduction to Algorithms textbook   */
 
+/*  NEED TO FIX:
+    - COMMENTS: mergeSort() and merge()
+    - MAYBE: addEnd(), addFront(), delEnd(), delFront()    */
+
 #include <iostream>
-#include <math.h>
+#include <cmath>
 using namespace std;
 
 //  Circular Dynamic Array Class
@@ -50,9 +54,10 @@ class CircularDynamicArray {
         elmtype QuickSelect(int l, int r, int k);
         int QuickPartition(int l, int r);
 
-        elmtype WCSelect(elmtype* arr, int l, int r, int k);
-        int WCPartition(elmtype* arr, int l, int r, elmtype x);
-        elmtype WCFindMedian(elmtype* arr, int i, int n);
+        int WCSelect(int l, int r, int k);
+        int WCPivot(int l, int r);
+        int WCPartition(int l, int r, int pivotIndex, int k);
+        int WCPartition5(int l, int r);
 
         void mergeSort(int l, int r);
         void merge(int l, int m, int r);
@@ -242,11 +247,12 @@ elmtype CircularDynamicArray<elmtype>::QuickSelect(int k) {
     return QuickSelect(0, size - 1, k); //  Calls recursive helper function
 }
 
-//  Returns kth smallest element using _______ (quick select apparently)
+//  Returns kth smallest element using the median of medians algorithm
 template <typename elmtype>
 elmtype CircularDynamicArray<elmtype>::WCSelect(int k) {
-    return QuickSelect(0, size - 1, k);
+    return data[(front + WCSelect(0, size - 1, k - 1)) % cap];    //  Calls recursive helper function
 }
+
 
 //  Sorts circular dynamic array using merge sort
 template <typename elmtype>
@@ -334,6 +340,92 @@ int CircularDynamicArray<elmtype>::QuickPartition(int l, int r) {
     data[(front + i) % cap] = data[(front + r) % cap];
     data[(front + r) % cap] = temp;
     return i;
+}
+
+//  Recursive helper function for WCSelect
+//  Based on pseudo code from https://en.wikipedia.org/wiki/Median_of_medians
+template <typename elmtype>
+int CircularDynamicArray<elmtype>::WCSelect(int l, int r, int k) {
+    while (1) {
+        if (l == r) return l;
+
+        int pivotIndex = WCPivot(l, r);
+        pivotIndex = WCPartition(l, r, pivotIndex, k);
+
+        /*  If pivot index is equal to k, return pivot index
+            Else, if pivot index is greater than k, recursively searches left half of array
+            Else, recursively searches right half of array                                      */
+        if (k == pivotIndex)        return pivotIndex;
+        else if (k < pivotIndex)    r = pivotIndex - 1;
+        else                        l = pivotIndex + 1;
+    }
+}
+
+//  Finds pivot using the median of medians algorithm
+//  Based on pseudo code from https://en.wikipedia.org/wiki/Median_of_medians
+template <typename elmtype>
+int CircularDynamicArray<elmtype>::WCPivot(int l, int r) {
+    //  If subarray is less than 5 elements, returns median of subarray
+    if (r - l < 5)  return WCPartition5(l, r);
+
+    //  Otherwise moves medians of subarrays of 5 elements to front of subarray
+    for (int i = l; i <= r; i += 5) {
+        int subR = i + 4;
+        if (subR > r)   subR = r;
+
+        int median5 = WCPartition5(i, subR);
+        swap(median5, l + floor((i - l) / 5));
+    }
+
+    //  Recursively computes median of medians
+    int mid = (r - l) / 10 + l;
+    return WCSelect(l, l + floor((r - l) / 5), mid);
+}
+
+//  Partitions array into 3 groups: less than pivot, equal to pivot, and greater than pivot
+//  Based on pseudo code from https://en.wikipedia.org/wiki/Median_of_medians
+template <typename elmtype>
+int CircularDynamicArray<elmtype>::WCPartition(int l, int r, int pivotIndex, int k) {
+    elmtype pivotValue = data[(front + pivotIndex) % cap];
+    swap(pivotIndex, r);
+    int storeIndex = l;
+
+    for (int i = l; i < r; i++) {
+        if (data[(front + i) % cap] < pivotValue) {
+            swap(storeIndex, i);
+            storeIndex++;
+        }
+    }
+
+    int storeIndexEq = storeIndex;
+    for (int i = storeIndex; i < r; i++) {
+        if (data[(front + i) % cap] == pivotValue) {
+            swap(storeIndexEq, i);
+            storeIndexEq++;
+        }
+    }
+
+    swap(r, storeIndexEq);
+
+    if (k < storeIndex)         return storeIndex;
+    else if (k <= storeIndexEq) return k;
+    return storeIndexEq;
+}
+
+//  Selects the median of at most 5 elements
+//  Based on pseudo code from https://en.wikipedia.org/wiki/Median_of_medians
+template <typename elmtype>
+int CircularDynamicArray<elmtype>::WCPartition5(int l, int r) {
+    int i = l + 1;
+    while (i < r) {
+        int j = i;
+        while (j > l && data[(front + j - 1) % cap] > data[(front + j) % cap]) {
+            swap(j - 1, j);
+            j--;
+        }
+        i++;
+    }
+    return floor((l + r) / 2);
 }
 
 //  Recursive helper function for stableSort

@@ -315,17 +315,17 @@ void FibHeap<keytype>::link(FibHeapNode<keytype>* y, FibHeapNode<keytype>* x) {
 
     //  Adds y to x's child list
     if (x->child == nullptr) {
-        /*  Case 1: x has no children                         x
+        /*  Case 1: x has no other children                     x
             Sets x's child to be y and y's parent to be x       |
-                                                                y           */
+                                                                y       */
         x->child = y;
         y->parent = x;
         y->left = nullptr;
         y->right = nullptr;
     } else {
-        /*  Case 2: x already has at least one child                  x
+        /*  Case 2: x already has at least one child                    x
             Adds y to end of x's child list and updates pointers       /|
-                                                                      y-c   */
+                                                                      y-c       */
         FibHeapNode<keytype>* curr = x->child;
         while (curr->left != nullptr)   curr = curr->left;
         curr->left = y;

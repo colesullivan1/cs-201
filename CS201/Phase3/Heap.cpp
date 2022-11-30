@@ -5,6 +5,7 @@
                 the recorded lectures and in the Introduction to Algorithms textbook    */
 
 #include <iostream>
+
 using namespace std;
 
 //  Heap Class
@@ -22,8 +23,8 @@ class Heap {
         void printKey();
 
     private:
-        CircularDynamicArray<keytype> data;
-        int size;
+        CircularDynamicArray<keytype> data; // Stores the heap
+        int size;                           // Current size of the heap
 
         int parent(int i);
         int left(int i);
@@ -39,7 +40,7 @@ Heap<keytype>::Heap() {
     size = 0;
 }
 
-//  Constructs new heap of size s using keys stored in k[]
+//  Overloaded constructor, constructs heap using array of keys
 template <typename keytype>
 Heap<keytype>::Heap(keytype k[], int s) {
     data = CircularDynamicArray<keytype>();
@@ -50,19 +51,20 @@ Heap<keytype>::Heap(keytype k[], int s) {
 }
 
 //  Destructor
+/*  Must be created despite being empty to avoid compiler errors
+    Think this is because of C++'s default destructor */
 template <typename keytype>
 Heap<keytype>::~Heap() {
-    size = 0;
 }
 
-//  Copy constructor, copies heap H to this
+//  Copy constructor
 template <typename keytype>
 Heap<keytype>::Heap(const Heap &H) {
     data = H.data;
     size = H.size;
 }
 
-//  Copy assignment operator, copies heap H to this
+//  Copy assignment operator
 template <typename keytype>
 Heap<keytype>& Heap<keytype>::operator=(const Heap &H) {
     this->data = H.data;
@@ -81,7 +83,7 @@ keytype Heap<keytype>::peekKey() {
 template <typename keytype>
 keytype Heap<keytype>::extractMin() {
     /*  Sets min to key at top of heap, then removes min from heap and
-        moves key from the bottom of the heap to the top            */
+        moves key at the very bottom of the heap to the top */
     keytype min = data[0];
     data[0] = data[size - 1];
     size--;
@@ -105,7 +107,7 @@ void Heap<keytype>::insert(keytype k) {
     }
 }
 
-//  Prints contents of cda storing heap
+//  Prints contents of heap
 template <typename keytype>
 void Heap<keytype>::printKey() {
     for (int i = 0; i < size; i++)  cout << data[i] << " ";
@@ -115,19 +117,19 @@ void Heap<keytype>::printKey() {
 //  Returns index of parent of i
 template <typename keytype>
 int Heap<keytype>::parent(int i) {
-    return ((i + 1) / 2) - 1;
+    return i / 2;
 }
 
 //  Returns index of left child of i
 template <typename keytype>
 int Heap<keytype>::left(int i) {
-    return ((i + 1) * 2) - 1;
+    return i * 2;
 }
 
 //  Returns index of right child of i
 template <typename keytype>
 int Heap<keytype>::right(int i) {
-    return ((i + 1) * 2 + 1) - 1;
+    return i * 2 + 1;
 }
 
 // "Floats" key at i down the heap so that the sub-tree rooted at i obeys the min-heap properties

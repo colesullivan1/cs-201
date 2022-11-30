@@ -6,18 +6,19 @@
 
 #include <iostream>
 #include <math.h>
+
 using namespace std;
 
 //  Fibonacci Heap Node Struct
 template <typename keytype>
 struct FibHeapNode {
-    keytype key;
-    FibHeapNode<keytype>* parent;
-    FibHeapNode<keytype>* child;
-    FibHeapNode<keytype>* left;
-    FibHeapNode<keytype>* right;
-    int degree;
-    bool mark;
+    keytype key;                    //  Key of the node
+    FibHeapNode<keytype>* parent;   //  Parent of the node
+    FibHeapNode<keytype>* child;    //  Child of the node
+    FibHeapNode<keytype>* left;     //  Left sibling of the node
+    FibHeapNode<keytype>* right;    //  Right sibling of the node
+    int degree;                     //  Degree (number of children) of the node
+    bool mark;                      //  Marked if the node has lost a child since the last time it was made a child of another node
 };
 
 //  Fibonacci Heap Class
@@ -40,11 +41,11 @@ class FibHeap {
         void printKey();
 
     private:
-        FibHeapNode<keytype>* head;
-        FibHeapNode<keytype>* tail;
-        FibHeapNode<keytype>* min;
-        int numRoots;
-        int numNodes;
+        FibHeapNode<keytype>* head; //  Pointer to the head of the root list
+        FibHeapNode<keytype>* tail; //  Pointer to the tail of the root list
+        FibHeapNode<keytype>* min;  //  Pointer to the minimum node in the fib heap
+        int numRoots;               //  Number of roots in the root list
+        int numNodes;               //  Total number of nodes in the fib heap
 
         void initHeap();
         void initNode(FibHeapNode<keytype>* n, keytype k);
@@ -60,38 +61,35 @@ class FibHeap {
         void print(FibHeapNode<keytype>* n);
 };
 
-//  Default Constructor
+//  Default constructor
 template <typename keytype>
 FibHeap<keytype>::FibHeap() {
     initHeap();
 }
 
-//  Constructs new fib heap of size s using keys stored in k[], then stores every key's handle in cda &handle
+//  Overloaded constructor, constructs a fib heap from an array of keys and fills the handle array with pointers to the nodes
 template <typename keytype>
 FibHeap<keytype>::FibHeap(keytype k[], int s, CircularDynamicArray<FibHeapNode<keytype>*> &handle) {
-    initHeap();
+    initHeap(); //  Initializes the heap
 
     //  Add keys in k[] to heap and add their handles to cda
     for (int i = 0; i < s; i++) {
         FibHeapNode<keytype>* node = new FibHeapNode<keytype>;
-        initNode(node, k[i]);
+        initNode(node, k[i]);   //  Initializes the new node
 
-        insertNode(node);
-        handle.addEnd(node);
-        numNodes++;
+        insertNode(node);   //  Inserts the new node into the heap
+        handle.addEnd(node);    //  Adds the new node to the handle array
+        numNodes++; //  Increments the number of nodes in the heap
     }
 
-    consolidate();
+    consolidate();  //  Consolidates the heap to form binomial trees
 }
 
 //  Destructor
+/*  Must be created despite being empty to avoid compiler errors
+    Think this is because of C++'s default destructor */
 template <typename keytype>
 FibHeap<keytype>::~FibHeap() {
-    head = nullptr;
-    tail = nullptr;
-    min = nullptr;
-    numRoots = 0;
-    numNodes = 0;
 }
 
 //  Returns smallest key in fib heap
@@ -110,8 +108,8 @@ keytype FibHeap<keytype>::extractMin() {
         head = nullptr;
         tail = nullptr;
         min = nullptr;
-        numRoots--;
-        numNodes--;
+        numRoots = 0;
+        numNodes = 0;
         return z->key;
     }
 
@@ -120,7 +118,9 @@ keytype FibHeap<keytype>::extractMin() {
         // Add each child of z to root list and set each's parent to nullptr
         if (z->child != nullptr) {
             FibHeapNode<keytype>* curr = z->child;
+            //  Iterate to the leftmost child of z
             while (curr->left != nullptr) curr = curr->left;
+            //  Then, iterate back to the "head" of z's child list and add each child to root list
             while (curr != nullptr) {
                 FibHeapNode<keytype>* next = curr->right;
                 insertNode(curr);
@@ -139,6 +139,7 @@ keytype FibHeap<keytype>::extractMin() {
             z->left->right = z->right;
             z->right->left = z->left;
         }
+        //  Decrement number of roots in root list and number of nodes in fib heap
         numRoots--;
         numNodes--;
 
@@ -158,10 +159,10 @@ keytype FibHeap<keytype>::extractMin() {
 template <typename keytype>
 FibHeapNode<keytype>* FibHeap<keytype>::insert(keytype k) {
     FibHeapNode<keytype>* node = new FibHeapNode<keytype>;
-    initNode(node, k);
+    initNode(node, k);  //  Initializes the new node
 
-    insertNode(node);
-    numNodes++;
+    insertNode(node);   //  Inserts the new node into the root list
+    numNodes++; //  Increments the number of nodes in the heap
 
     return node;
 }
@@ -171,8 +172,9 @@ template <typename keytype>
 bool FibHeap<keytype>::decreaseKey(FibHeapNode<keytype>* h, keytype k) {
     if (k > h->key)    return false;
 
+    h->key = k; //  Decreases key stored at handle h to k
+
     //  If h is now smaller than its parent, calls cut() on h and its parent and cascadingCut() on its parent
-    h->key = k;
     FibHeapNode<keytype>* y = h->parent;
     if (y != nullptr && h->key < y->key) {
         cut(h, y);
@@ -195,6 +197,8 @@ void FibHeap<keytype>::merge(FibHeap<keytype> &H2) {
     //  If H2's smallest key is smaller than current smallest key, H2.min becomes min
     if (min == nullptr || (H2.min != nullptr && H2.min->key < min->key))  min = H2.min;
 
+    /*  Adds number of nodes in H2 to number of nodes in current fib heap
+        and number of roots in H2 to number of roots in current fib heap  */
     numRoots += H2.numRoots;
     numNodes += H2.numNodes;
 
@@ -212,9 +216,12 @@ void FibHeap<keytype>::printKey() {
     //  Calls print on each member of root list
     FibHeapNode<keytype>* root = head;
     while (numNodes != 0 && root != nullptr) {
+        //  Prints heap rooted at current root
         cout << "Rank " << root->degree << endl;
         print(root);
         cout << endl;
+
+        //  Iterates to next root in root list
         if (root->left != nullptr) cout << endl;
         root = root->left;
     }
@@ -253,28 +260,28 @@ template <typename keytype>
 void FibHeap<keytype>::consolidate() {
     //  Creates cda A to keep track of roots according to their degrees
     CircularDynamicArray<FibHeapNode<keytype>*> A;
-    int dN = log2(numNodes) + 1;    //  D(n)
-    for (int i = 0; i < dN; i++)  A.addEnd(nullptr);
+    int dN = log2(numNodes) + 1;    //  Maximum degree of any node in the heap
+    for (int i = 0; i < dN; i++)  A.addEnd(nullptr);    //  Initializes A to have dN elements
 
     FibHeapNode<keytype>* next = head;
     for (int i = 0; i < numRoots; i++) {
-        //  Sets x to ith root in root list
-        FibHeapNode<keytype>* x = next;
-        next = next->left;
-        int d = x->degree;
+        FibHeapNode<keytype>* x = next; //  x is the ith root in the root list
+        next = next->left;              //  next is the (i+1)th root in the root list
+        int d = x->degree;              //  d is the degree of x
 
         //  If there is already a root with the same degree as x, consolidates trees until there are no conflicting degrees
         while (A[d] != nullptr) {
-            FibHeapNode<keytype>* y = A[d];
+            FibHeapNode<keytype>* y = A[d]; //  y is the root with the same degree as x
 
+            //  If x's key is greater than y's key, swaps x and y
             if (x->key > y->key) {
                 FibHeapNode<keytype>* temp = x;
                 x = y;
                 y = temp;
             }
-            link(y, x);
-            A[d] = nullptr;
-            d++;
+            link(y, x); //  Makes y a child of x
+            A[d] = nullptr; //  Removes y from A, as it is no longer a root
+            d++;    //  Increments d, as x now has one more child
         }
 
         A[d] = x;   //  Adds x to A
@@ -286,7 +293,7 @@ void FibHeap<keytype>::consolidate() {
     tail = nullptr;
     numRoots = 0;
 
-    //  Adds roots stored in consolidated cda A to new, cleared root list
+    //  Adds roots stored in cda A to new, cleared root list
     for (int i = 0; i < dN; i++) {
         if (A[i] != nullptr)  insertNode(A[i]);
     }
@@ -333,11 +340,11 @@ void FibHeap<keytype>::link(FibHeapNode<keytype>* y, FibHeapNode<keytype>* x) {
         y->left = nullptr;
         y->right = curr;
     }
-    x->degree++;
-    y->mark = false;
+    x->degree++;    //  Increments x's degree, as it now has one more child
+    y->mark = false;    //  Resets y's mark, as it is now a child of x
 }
 
-//  Inserts node n into root list
+//  Inserts node n at end of root list
 template <typename keytype>
 void FibHeap<keytype>::insertNode(FibHeapNode<keytype>* n) {
     if (numRoots == 0) {
@@ -397,9 +404,9 @@ template <typename keytype>
 void FibHeap<keytype>::cascadingCut(FibHeapNode<keytype>* y) {
     FibHeapNode<keytype>* z = y->parent;
     if (z != nullptr) { //  Checks if y is the root of the tree
-        if (y->mark == false)   y->mark = true;
+        if (y->mark == false)   y->mark = true; //  If y is unmarked, just mark it
         else {
-            //  If y isn't the root and isn't marked, "cuts" y out of the tree and recurs up the tree
+            //  If y isn't the root and is marked, "cuts" y out of the tree and recurs up the tree
             cut(y, z);
             cascadingCut(z);
         }
@@ -412,12 +419,14 @@ void FibHeap<keytype>::print(FibHeapNode<keytype>* n) {
     FibHeapNode<keytype>* curr = n;
 
     cout << curr->key << " ";
-    //  Recursively traveres tree, calling print on each node it comes across
+    //  If n has a child, recursively prints n's subtree
     if (curr->child != nullptr) {
         curr = curr->child;
+        //  Iterate to the leftmost child in the child list
         while (curr->left != nullptr) {
             curr = curr->left;
         }
+        //  Then, iterate back to the "head" of the child list and recursively call print on each node
         while (curr != nullptr) {
             print(curr);
             curr = curr->right;

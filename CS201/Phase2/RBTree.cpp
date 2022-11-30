@@ -358,7 +358,7 @@ keytype* RBTree<keytype, valuetype>::successor(keytype k) {
     } else  return nullptr;
 }
 
-//  Returns key of node in red-black tree that comes before key k
+//  Returns key of node in red-black tree that comes before key k (i.e. has next lowest key)
 template <typename keytype, typename valuetype>
 keytype* RBTree<keytype, valuetype>::predecessor(keytype k) {
     Node<keytype, valuetype>* x = new Node<keytype, valuetype>;
